@@ -14,36 +14,49 @@
 //PBKDF2 Derive
 
 //AES-KW Key Wrap
+
+let hashs = [
+    "SHA-256",
+    "SHA-384",
+    "SHA-512"
+];
+let modulus = [2048, 4096]
+let curves = ["P-256", "P-384", "P-521"]
+
+function ran() {
+    window.crypto.getRandomValues(new Uint8Array(16))
+}
+
 let algDB = [
     {
         name: "RSA-OAEP",
-        mod: [2048, 4096], //2048
+        modulusLength: [2048, 4096], //2048
         pexp: new Uint8Array([1, 0, 1]), //65537 
         hash: ["SHA-256", "SHA-384", "SHA-512"],
         use: ["encrypt", "decrypt"]
     },
     {
         name: "RSASSA-PKCS1-v1_5",
-        mod: [2048, 4096],
+        modulusLength: [2048, 4096],
         pexp: new Uint8Array([1, 0, 1]),
         hash: ["SHA-256", "SHA-384", "SHA-512"],
         use: ["sign", "verify"]
     },
     {
         name: "RSA-PSS",
-        mod: [2048, 4096],
+        modulusLength: [2048, 4096],
         pexp: new Uint8Array([1, 0, 1]),
         hash: ["SHA-256", "SHA-384", "SHA-512"],
         use: ["sign", "verify"]
     },
     {
         name: "ECDSA",
-        curve: ["P-256", "P-384", "P-521"],
+        namedCurve: ["P-256", "P-384", "P-521"],
         use: ["sign", "verify"]
     },
     {
         name: "ECDH",
-        curve: ["P-256", "P-384", "P-521"],
+        namedCurve: ["P-256", "P-384", "P-521"],
         use: ["deriveBits", "deriveKey"]
     },
     {
@@ -88,11 +101,7 @@ let algDB = [
     }
 ]
 
-let algorithm = {}
-for (i = 0; i < db.length; i++) {
-    algObj = (db[i].name).replace("-", "_")
-    algorithm[algObj] = db[i];
-}
+
 
 let db = {
     RSA_OAEP: algDB[0],
@@ -109,22 +118,40 @@ let db = {
     AES_KW: algDB[11]
 }
 
-let crypto = {
-
-}
-function genCryptokey(alg, data) {
+let x;
+function genCryptokey(param, extractable, purpose) {
     if (alg === 'RSA-OAEP' || alg === 'RSASSA-PKCS1-v1_5' || alg === 'RSA-PSS') {
-        RsaParams = {
-            name: "",
-            modulusLength: 0,
-            publicExponent: 0,
-            hash: 0
+        cryptoParams = {
+            name: alg,
+            modulusLength: param.modulusLength,
+            publicExponent: new Uint8Array([1,0,1]),
+            hash: param.hash
         }
     } else if (alg === 'ECDSA' || alg === 'ECDH') {
-
+        cryptoParams = {
+            name: alg,
+            hash: ("SHA-512")
+        }
     } else if (alg === 'HMAC') {
 
     } else if (alg === 'AES-CTR' || alg === 'AES-CBC' || alg === 'AES-KW') {
 
     }
+    let key = await window.crypto.subtle.generateKey(
+        cryptoParams,
+        canExport,
+        purpose
+    );
+    x = key
+    return key
+
 }
+
+(() => {
+    async function exportCryptoKey(key, format){
+        const exported = await window.crypto.subtle.exportKey(
+            format,
+            key
+        );
+    }
+})
