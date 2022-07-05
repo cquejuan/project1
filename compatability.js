@@ -1,0 +1,8 @@
+let browserCompatibilityDb = {
+    subtleCrypto: {
+
+    },
+    fileSystem: {
+        
+    }
+}

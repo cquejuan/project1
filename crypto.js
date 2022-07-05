@@ -103,7 +103,7 @@ let algDB = [
 
 
 
-let db = {
+let cryptoDb = {
     RSA_OAEP: algDB[0],
     RSASSA_PKCS1_v1_5: algDB[1],
     RSA_PSS: algDB[2],
@@ -119,7 +119,7 @@ let db = {
 }
 
 let x;
-function genCryptokey(param, extractable, purpose) {
+async function createKey(param, extractable, purpose) {
     if (alg === 'RSA-OAEP' || alg === 'RSASSA-PKCS1-v1_5' || alg === 'RSA-PSS') {
         cryptoParams = {
             name: alg,
